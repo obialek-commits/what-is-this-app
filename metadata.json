@@ -1,0 +1,6 @@
+{
+  "name": "What Is This?",
+  "description": "Point your mobile camera at anything to identify it instantly using AI. Get cool facts, ideas, and info.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
