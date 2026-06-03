@@ -3,11 +3,244 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
+    <title>What Is This? — Real-time AI Identifier</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600;1,6..72,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      body { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; background-color: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }
+      .font-serif-italic { font-family: 'Newsreader', Georgia, serif; font-style: italic; }
+      @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+      .scanline-active { animation: scan 2.5s ease-in-out infinite; }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body class="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] flex items-center justify-center p-0 sm:p-8 relative">
+
+    <div class="w-full max-w-md min-h-screen sm:min-h-[760px] sm:my-4 bg-[#121212] sm:rounded-[48px] sm:border-[6px] sm:border-[#1f1f1f] sm:shadow-2xl flex flex-col justify-between overflow-hidden relative">
+
+      <header class="pt-10 px-8 pb-4 w-full">
+        <div class="flex items-center justify-between mb-1">
+          <h1 class="text-3xl font-serif-italic text-white tracking-tight">What Is This?</h1>
+          <div class="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-[9px] text-[#888] font-mono tracking-wider">AI</div>
+        </div>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-[#888] mt-1 font-medium">Point your camera at anything</p>
+      </header>
+
+      <main class="flex-1 flex flex-col justify-between px-6 py-2 gap-4">
+        <div class="flex-grow min-h-[220px] relative aspect-video sm:aspect-[4/3] bg-[#1a1a1a] rounded-[32px] border border-[#2a2a2a] overflow-hidden flex flex-col justify-center items-center shadow-lg group">
+          <video id="camera_feed" autoplay playsinline muted class="hidden w-full h-full object-cover"></video>
+
+          <div id="camera_loading" class="flex flex-col items-center gap-3">
+            <div class="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+            <span class="text-[10px] uppercase tracking-widest text-[#888]">CONNECTING CAMERA...</span>
+          </div>
+
+          <div id="camera_error" class="hidden p-6 text-center flex flex-col items-center gap-4 max-w-xs">
+            <p id="error_message_text" class="text-stone-300 text-xs leading-relaxed">Camera access required. Please allow camera permission and try again.</p>
+            <button id="retry_camera_btn" class="px-5 py-2.5 bg-white text-black rounded-full text-[11px] uppercase tracking-widest font-bold cursor-pointer">Request Access</button>
+          </div>
+
+          <div id="camera_overlay" class="hidden absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 bg-gradient-to-t from-black/60 to-transparent">
+            <div class="absolute w-8 h-8 border-t border-l border-white/30 top-6 left-6 rounded-tl-md"></div>
+            <div class="absolute w-8 h-8 border-t border-r border-white/30 top-6 right-6 rounded-tr-md"></div>
+            <div class="absolute w-8 h-8 border-b border-l border-white/30 bottom-6 left-6 rounded-bl-md"></div>
+            <div class="absolute w-8 h-8 border-b border-r border-white/30 bottom-6 right-6 rounded-br-md"></div>
+            <div id="laser_scan" class="hidden absolute left-0 right-0 h-[1.5px] bg-white/70 shadow-[0_0_15px_rgba(255,255,255,0.8)] z-20 scanline-active"></div>
+            <div class="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/50 bg-[#121212]/80 px-3 py-1.5 rounded-full mt-auto border border-white/5">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE</span>
+              <span id="facing_camera_label">REAR CAM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-4">
+          <div class="w-full min-h-[145px] flex flex-col justify-start">
+
+            <div id="result_ideal" class="w-full text-center py-5 text-[#888] flex flex-col items-center gap-2">
+              <p class="text-[10.5px] max-w-[260px] leading-relaxed">Place an item in the viewfinder and tap "Identify" to get instant AI facts.</p>
+            </div>
+
+            <div id="result_loading" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-6 text-center flex flex-col items-center gap-4 shadow-xl">
+              <div class="flex items-center gap-2">
+                <div class="w-4 h-4 border-2 border-white/15 border-t-white rounded-full animate-spin"></div>
+                <span class="text-[10px] text-[#888] uppercase tracking-widest font-mono">Analyzing...</span>
+              </div>
+              <p id="loading_phrase" class="text-white text-xs font-serif-italic">"Analyzing visual patterns..."</p>
+            </div>
+
+            <div id="result_completed" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] overflow-hidden shadow-xl">
+              <div class="bg-[#121212] border-b border-[#2a2a2a] px-5 py-3.5 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span class="text-[10px] uppercase tracking-widest text-[#888] font-semibold">Analysis Complete</span>
+                </div>
+              </div>
+              <div class="p-5 flex flex-col gap-4">
+                <div class="flex gap-4 items-start">
+                  <div class="relative w-14 h-14 rounded-xl overflow-hidden border border-[#2a2a2a] shrink-0 bg-[#0a0a0a]">
+                    <img id="capture_thumbnail" src="" alt="Captured" class="w-full h-full object-cover" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p id="ai_response_text" class="text-stone-300 text-xs leading-relaxed whitespace-pre-wrap">Could not identify the item.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button id="identify_button" class="w-full h-16 bg-white text-black disabled:bg-[#1f1f1f] disabled:text-stone-600 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-200 transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] shadow-lg disabled:cursor-not-allowed cursor-pointer">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <span id="button_text">Identify</span>
+          </button>
+
+          <button id="toggle_camera_btn" class="flex items-center justify-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors text-[10px] tracking-wider uppercase font-mono py-1 cursor-pointer">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" /></svg>
+            Switch Camera
+          </button>
+        </div>
+      </main>
+
+      <div class="w-28 h-1 bg-white/10 mx-auto mt-2 mb-4 rounded-full shrink-0 hidden sm:block"></div>
+    </div>
+
+    <script>
+      const API_KEY = "AIzaSyAQ-Ab8RN6LuFxITU5zjz8OjjaCNGZQD0nkqscEHWLrezVAxl1hz2Q";
+
+      const LOADING_PHRASES = [
+        "Analyzing visual patterns...",
+        "Running shape detection...",
+        "Consulting Gemini 1.5-Flash...",
+        "Decoding interesting facts...",
+        "Structuring cool insights...",
+        "Finalizing friendly review..."
+      ];
+
+      const cameraFeed = document.getElementById("camera_feed");
+      const cameraLoading = document.getElementById("camera_loading");
+      const cameraError = document.getElementById("camera_error");
+      const errorMessageText = document.getElementById("error_message_text");
+      const retryCameraBtn = document.getElementById("retry_camera_btn");
+      const cameraOverlay = document.getElementById("camera_overlay");
+      const laserScan = document.getElementById("laser_scan");
+      const facingCameraLabel = document.getElementById("facing_camera_label");
+      const toggleCameraBtn = document.getElementById("toggle_camera_btn");
+      const identifyButton = document.getElementById("identify_button");
+      const resultIdeal = document.getElementById("result_ideal");
+      const resultLoading = document.getElementById("result_loading");
+      const loadingPhraseEl = document.getElementById("loading_phrase");
+      const resultCompleted = document.getElementById("result_completed");
+      const captureThumbnail = document.getElementById("capture_thumbnail");
+      const aiResponseText = document.getElementById("ai_response_text");
+
+      let activeStream = null;
+      let facingMode = "environment";
+      let isIdentifying = false;
+      let phraseInterval = null;
+      let phraseIndex = 0;
+
+      async function startCamera() {
+        cameraLoading.classList.remove("hidden");
+        cameraError.classList.add("hidden");
+        cameraFeed.classList.add("hidden");
+        cameraOverlay.classList.add("hidden");
+        stopCamera();
+
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+          activeStream = stream;
+          cameraFeed.srcObject = stream;
+          cameraLoading.classList.add("hidden");
+          cameraFeed.classList.remove("hidden");
+          cameraOverlay.classList.remove("hidden");
+          facingCameraLabel.textContent = facingMode === "environment" ? "REAR CAM" : "FRONT CAM";
+          if (facingMode === "user") { cameraFeed.classList.add("scale-x-[-1]"); } else { cameraFeed.classList.remove("scale-x-[-1]"); }
+        } catch (err) {
+          if (facingMode === "environment") {
+            try {
+              const fallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+              activeStream = fallback;
+              cameraFeed.srcObject = fallback;
+              facingMode = "user";
+              cameraLoading.classList.add("hidden");
+              cameraFeed.classList.remove("hidden");
+              cameraOverlay.classList.remove("hidden");
+              facingCameraLabel.textContent = "FRONT CAM";
+              cameraFeed.classList.add("scale-x-[-1]");
+              return;
+            } catch (e) {}
+          }
+          cameraLoading.classList.add("hidden");
+          cameraError.classList.remove("hidden");
+          errorMessageText.textContent = err.name === "NotAllowedError" ? "Camera permission denied. Please allow camera access in your browser settings." : `Camera error: ${err.message}`;
+        }
+      }
+
+      function stopCamera() {
+        if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+      }
+
+      toggleCameraBtn.addEventListener("click", () => { facingMode = facingMode === "environment" ? "user" : "environment"; startCamera(); });
+      retryCameraBtn.addEventListener("click", () => startCamera());
+
+      function startPhraseRotation() {
+        phraseIndex = 0;
+        loadingPhraseEl.textContent = `"${LOADING_PHRASES[0]}"`;
+        phraseInterval = setInterval(() => {
+          phraseIndex = (phraseIndex + 1) % LOADING_PHRASES.length;
+          loadingPhraseEl.textContent = `"${LOADING_PHRASES[phraseIndex]}"`;
+        }, 1600);
+      }
+
+      function stopPhraseRotation() { if (phraseInterval) { clearInterval(phraseInterval); phraseInterval = null; } }
+
+      async function handleIdentify() {
+        if (!activeStream || isIdentifying) return;
+        try {
+          isIdentifying = true;
+          identifyButton.disabled = true;
+          laserScan.classList.remove("hidden");
+          resultIdeal.classList.add("hidden");
+          resultCompleted.classList.add("hidden");
+          resultLoading.classList.remove("hidden");
+          startPhraseRotation();
+
+          const canvas = document.createElement("canvas");
+          canvas.width = cameraFeed.videoWidth || 640;
+          canvas.height = cameraFeed.videoHeight || 480;
+          const ctx = canvas.getContext("2d");
+          if (facingMode === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+          ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+
+          const base64DataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          captureThumbnail.src = base64DataUrl;
+          const base64Clean = base64DataUrl.split(",")[1];
+
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ contents: [{ parts: [{ inlineData: { mimeType: "image/jpeg", data: base64Clean } }, { text: "What is this? Identify it clearly and explain what it is, any interesting facts about it, and anything useful the person should know. Keep it friendly and under 150 words." }] }] })
+          });
+
+          if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error ? e.error.message : "API error"); }
+          const data = await response.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not identify the item.";
+          aiResponseText.textContent = rawText;
+          resultCompleted.classList.remove("hidden");
+        } catch (err) {
+          aiResponseText.textContent = `Error: ${err.message}`;
+          resultCompleted.classList.remove("hidden");
+        } finally {
+          isIdentifying = false;
+          identifyButton.disabled = false;
+          laserScan.classList.add("hidden");
+          resultLoading.classList.add("hidden");
+          stopPhraseRotation();
+        }
+      }
+
+      identifyButton.addEventListener("click", handleIdentify);
+      window.addEventListener("load", startCamera);
+      window.addEventListener("beforeunload", stopCamera);
+    </script>
   </body>
 </html>
-
