@@ -3,1020 +3,262 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>What's That Sound? — Real-time Acoustic Interpreter</title>
-    <!-- Tailwind CSS v4 Browser Compiler JIT -->
+    <title>What Is This? — Real-time AI Identifier</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- Premium Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600;1,6..72,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      body {
-        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-        background-color: #0a0a0a;
-        color: #e0e0e0;
-        margin: 0;
-        padding: 0;
-      }
-      .font-serif-italic {
-        font-family: 'Newsreader', Georgia, serif;
-        font-style: italic;
-      }
-      /* Custom scanline animation */
-      @keyframes scan {
-        0% { top: 0%; }
-        50% { top: 100%; }
-        100% { top: 0%; }
-      }
-      .scanline-active {
-        animation: scan 2.5s ease-in-out infinite;
-      }
+      body { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; background-color: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }
+      .font-serif-italic { font-family: 'Newsreader', Georgia, serif; font-style: italic; }
+      @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+      .scanline-active { animation: scan 2.5s ease-in-out infinite; }
     </style>
   </head>
-  <body class="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] flex items-center justify-center p-0 sm:p-8 relative selection:bg-white/20 selection:text-white">
+  <body class="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] flex items-center justify-center p-0 sm:p-8 relative">
 
-    <!-- Secondary presentation aesthetic info context on large displays -->
-    <div class="hidden lg:block absolute top-10 right-10 text-right opacity-15 pointer-events-none select-none">
-      <div class="text-4xl font-serif-italic text-white tracking-widest uppercase">AI AUDIO</div>
-      <div class="text-[10px] tracking-[0.4em] text-stone-400 mt-1 uppercase font-mono">ACOUSTIC INTERPRETER</div>
-    </div>
-
-    <!-- Soft Ambient Global Backlight -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[280px] bg-gradient-to-b from-white/[0.03] to-transparent blur-3xl pointer-events-none"></div>
-
-    <!-- Main Mobile Appliance Enclosure -->
     <div class="w-full max-w-md min-h-screen sm:min-h-[760px] sm:my-4 bg-[#121212] sm:rounded-[48px] sm:border-[6px] sm:border-[#1f1f1f] sm:shadow-2xl flex flex-col justify-between overflow-hidden relative">
-      
-      <!-- Top Header Row -->
+
       <header class="pt-10 px-8 pb-4 w-full">
         <div class="flex items-center justify-between mb-1">
-          <h1 class="text-3xl font-serif-italic text-white tracking-tight select-none">
-            What's That Sound?
-          </h1>
-          <div class="flex items-center gap-1.5 font-sans">
-            <button 
-              id="open_key_modal_btn" 
-              class="p-1 px-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-[#aaa] hover:text-white rounded-full text-[9px] font-mono tracking-widest uppercase transition-all duration-150 flex items-center gap-1 cursor-pointer"
-              title="Configure API Key"
-            >
-              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-              </svg>
-              <span>KEY</span>
-            </button>
-            <div class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] text-[#888] font-mono tracking-wider uppercase select-none">
-              LOCAL
-            </div>
-          </div>
+          <h1 class="text-3xl font-serif-italic text-white tracking-tight">What Is This?</h1>
+          <div class="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-[9px] text-[#888] font-mono tracking-wider">AI</div>
         </div>
-        <p class="text-[10px] uppercase tracking-[0.25em] text-[#888] mt-1 font-medium select-none">
-          Record a sound or speaking voice
-        </p>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-[#888] mt-1 font-medium">Point your camera at anything</p>
       </header>
 
-      <!-- Central Interactive Viewport -->
       <main class="flex-1 flex flex-col justify-between px-6 py-2 gap-4">
+        <div class="flex-grow min-h-[220px] relative aspect-video sm:aspect-[4/3] bg-[#1a1a1a] rounded-[32px] border border-[#2a2a2a] overflow-hidden flex flex-col justify-center items-center shadow-lg group">
+          <video id="camera_feed" autoplay playsinline muted class="hidden w-full h-full object-cover"></video>
 
-        <!-- Acoustic Visualizer Segment Block -->
-        <div id="viewfinder_container" class="flex-grow min-h-[220px] relative aspect-video sm:aspect-[4/3] bg-[#1a1a1a] rounded-[32px] border border-[#2a2a2a] overflow-hidden flex flex-col justify-center items-center shadow-lg group cursor-pointer" title="Click to upload an audio file instead">
-          
-          <!-- Hidden Native File Input -->
-          <input type="file" id="file_input" accept="audio/*" class="hidden" />
-
-          <!-- Translucent API Key Config Modal Overlay -->
-          <div id="key_config_modal" class="hidden absolute inset-0 z-30 bg-black/95 backdrop-blur-md p-6 flex flex-col justify-center gap-4 transition-all duration-300">
-            <div class="space-y-1">
-              <h3 class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
-                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                </svg>
-                Gemini API Key Setup
-              </h3>
-              <p class="text-[10px] text-stone-400 leading-relaxed font-sans">
-                The default key can be changed due to quota or regional restrictions. Save a custom key starts with <strong>AIzaSy...</strong> to run the model client-side.
-              </p>
-            </div>
-            
-            <div class="space-y-2">
-              <input 
-                type="password" 
-                id="modal_key_input" 
-                placeholder="Paste AIzaSy... key format" 
-                class="w-full bg-[#121212]/90 border border-[#333] text-xs text-stone-200 rounded-xl px-3 py-2.5 outline-none focus:border-white/40 font-mono transition-all"
-              />
-              <div class="flex gap-2">
-                <button \
-                  id="save_modal_key_btn"\
-                  class="flex-1 bg-white text-black py-2.5 rounded-xl text-[10px] tracking-wider font-bold uppercase hover:bg-stone-200 active:scale-95 transition-all cursor-pointer"\
-                >
-                  Save Custom Key
-                </button>
-                <button \
-                  id="reset_modal_key_btn"\
-                  class="bg-white/5 border border-white/10 text-stone-300 px-4 py-2.5 rounded-xl text-[10px] tracking-wider font-semibold uppercase hover:bg-white/10 active:scale-95 transition-all cursor-pointer"\
-                >
-                  Reset Default
-                </button>
-              </div>
-            </div>
-
-            <button 
-              id="close_key_modal_btn"
-              class="absolute top-4 right-4 text-stone-500 hover:text-stone-300 transition-colors cursor-pointer"
-              title="Close modal"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Live HTML5 Audio Frequency Visualizer Canvas -->
-          <canvas 
-            id="audio_waveform" 
-            class="absolute inset-0 w-full h-full block bg-[#0c0c0c] z-0 rounded-[28px] pointer-events-none select-none"
-          ></canvas>
-
-          <!-- Connecting / Status UI Spinner overlay -->
-          <div id="camera_loading" class="hidden flex flex-col items-center gap-3 z-15 select-none pointer-events-none bg-black/60 p-4 rounded-2xl backdrop-blur-sm shadow-xl">
+          <div id="camera_loading" class="flex flex-col items-center gap-3">
             <div class="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-            <span class="text-[10px] uppercase tracking-widest text-[#888]">CONNECTING MICROPHONE...</span>
+            <span class="text-[10px] uppercase tracking-widest text-[#888]">CONNECTING CAMERA...</span>
           </div>
 
-          <!-- Connection/Permission Error Frame (Hidden by default) -->
-          <div id="camera_error" class="hidden p-6 text-center flex flex-col items-center gap-4 z-15 m-4 bg-[#121212]/95 border border-[#2a2a2a] rounded-2xl max-w-xs shadow-2xl">
-            <div class="w-14 h-14 rounded-full border border-white/15 flex items-center justify-center bg-white/[0.02]">
-              <svg class="w-6 h-6 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-              </svg>
-            </div>
-            <div class="space-y-1">
-              <p id="error_message_text" class="text-stone-300 text-xs leading-relaxed font-sans">
-                Microphone access is required to capture sounds directly.
-              </p>
-              <p class="text-[10px] text-stone-500 font-mono">
-                Or upload any audio track:
-              </p>
-            </div>
-            <div class="flex flex-col gap-2 w-full">
-              <button 
-                id="retry_camera_btn"
-                class="px-5 py-2.5 bg-white text-black hover:bg-stone-200 active:scale-95 rounded-full text-[11px] uppercase tracking-widest font-bold transition duration-150 cursor-pointer w-full text-center"
-              >
-                Allow Microphone
-              </button>
-              <button 
-                id="select_image_btn"
-                type="button"
-                class="px-5 py-2.5 bg-white/5 border border-white/10 text-stone-200 hover:bg-white/10 active:scale-95 rounded-full text-[11px] uppercase tracking-widest font-bold transition duration-150 cursor-pointer w-full text-center"
-              >
-                Upload Audio Instead
-              </button>
-            </div>
+          <div id="camera_error" class="hidden p-6 text-center flex flex-col items-center gap-4 max-w-xs">
+            <p id="error_message_text" class="text-stone-300 text-xs leading-relaxed">Camera access required. Please allow camera permission and try again.</p>
+            <button id="retry_camera_btn" class="px-5 py-2.5 bg-white text-black rounded-full text-[11px] uppercase tracking-widest font-bold cursor-pointer">Request Access</button>
           </div>
 
-          <!-- Dynamic Audio Visualizer HUD Overlay -->
-          <div id="camera_overlay" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 bg-gradient-to-t from-black/50 via-transparent to-transparent">
-            <!-- Focus marks for style -->
-            <div class="absolute w-6 h-6 border-t border-l border-white/20 top-6 left-6 rounded-tl-md"></div>
-            <div class="absolute w-6 h-6 border-t border-r border-white/20 top-6 right-6 rounded-tr-md"></div>
-            <div class="absolute w-6 h-6 border-b border-l border-white/20 bottom-6 left-6 rounded-bl-md"></div>
-            <div class="absolute w-6 h-6 border-b border-r border-white/20 bottom-6 right-6 rounded-br-md"></div>
-
-            <!-- Glowing wave active timeline -->
-            <div id="laser_scan" class="hidden absolute left-0 right-0 h-[1.5px] bg-emerald-400/80 shadow-[0_0_15px_rgba(52,211,153,0.8)] z-20 scanline-active"></div>
-
-            <!-- Status Indicator Bar -->
-            <div class="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/50 bg-[#121212]/80 backdrop-blur-md px-3 py-2 rounded-full mt-auto border border-white/5 shadow-lg">
-              <span class="flex items-center gap-1.5 font-medium">
-                <span id="pulsing_mic_dot" class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="facing_camera_label">MIC_MONITOR_IDLE</span>
-              </span>
-              <span id="audio_duration_label">0.0s / 15s max</span>
+          <div id="camera_overlay" class="hidden absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 bg-gradient-to-t from-black/60 to-transparent">
+            <div class="absolute w-8 h-8 border-t border-l border-white/30 top-6 left-6 rounded-tl-md"></div>
+            <div class="absolute w-8 h-8 border-t border-r border-white/30 top-6 right-6 rounded-tr-md"></div>
+            <div class="absolute w-8 h-8 border-b border-l border-white/30 bottom-6 left-6 rounded-bl-md"></div>
+            <div class="absolute w-8 h-8 border-b border-r border-white/30 bottom-6 right-6 rounded-br-md"></div>
+            <div id="laser_scan" class="hidden absolute left-0 right-0 h-[1.5px] bg-white/70 shadow-[0_0_15px_rgba(255,255,255,0.8)] z-20 scanline-active"></div>
+            <div class="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/50 bg-[#121212]/80 px-3 py-1.5 rounded-full mt-auto border border-white/5">
+              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE</span>
+              <span id="facing_camera_label">REAR CAM</span>
             </div>
           </div>
-
-          <!-- UI overlay when file has been dropped/uploaded/recorded -->
-          <div id="file_loaded_card" class="hidden z-20 flex flex-col items-center gap-3 bg-[#161616]/95 border border-[#2d2d2d] p-5 rounded-2xl text-center max-w-[240px] shadow-2xl backdrop-blur-md">
-            <div class="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-              </svg>
-            </div>
-            <div>
-              <p class="text-[9px] uppercase font-mono tracking-widest text-[#888]">Track Clip Loaded</p>
-              <p id="file_loaded_name" class="text-xs font-semibold text-emerald-400 truncate max-w-[170px] mt-0.5">voice_recording.webm</p>
-            </div>
-            
-            <div class="flex gap-2 mt-2 w-full">
-              <button 
-                id="play_uploaded_btn"
-                class="flex-1 bg-white text-black text-[10px] hover:bg-stone-200 px-3 py-1.5 rounded-lg font-mono flex items-center justify-center gap-1 cursor-pointer transition-all active:scale-95 font-bold"
-              >
-                <svg id="play_icon_svg" class="w-3 h-3 fill-current" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
-                </svg>
-                <span id="play_btn_text">Play</span>
-              </button>
-              <button 
-                id="clear_uploaded_btn"
-                class="bg-[#242424] hover:bg-red-500/10 text-stone-400 hover:text-red-400 p-1.5 rounded-lg border border-[#333] hover:border-red-500/20 cursor-pointer transition-all active:scale-95 text-[10px] font-mono px-3"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
         </div>
 
-        <!-- Controls / Response Segment -->
         <div class="flex flex-col items-center gap-4">
-          
           <div class="w-full min-h-[145px] flex flex-col justify-start">
-            
-            <!-- Ideal initial suggestion prompt -->
+
             <div id="result_ideal" class="w-full text-center py-5 text-[#888] flex flex-col items-center gap-2">
-              <svg class="w-4 h-4 text-[#333]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-              </svg>
-              <p class="text-[10.5px] max-w-[260px] leading-relaxed">
-                Tap the microphone below to record a sound, or drag an audio file here. Gemini will analyze and explain it.
-              </p>
+              <p class="text-[10.5px] max-w-[260px] leading-relaxed">Place an item in the viewfinder and tap "Identify" to get instant AI facts.</p>
             </div>
 
-            <!-- Spinner screen during ongoing classification -->
-            <div id="result_loading" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-6 text-center flex flex-col items-center justify-center gap-4.5 shadow-xl">
+            <div id="result_loading" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-6 text-center flex flex-col items-center gap-4 shadow-xl">
               <div class="flex items-center gap-2">
                 <div class="w-4 h-4 border-2 border-white/15 border-t-white rounded-full animate-spin"></div>
-                <span class="text-[10px] text-[#888] uppercase tracking-widest font-mono">Analyzing audio clip...</span>
+                <span class="text-[10px] text-[#888] uppercase tracking-widest font-mono">Analyzing...</span>
               </div>
-              <div class="space-y-1">
-                <p id="loading_phrase" class="text-white text-xs font-serif-italic tracking-wide">
-                  "Analyzing acoustic frequencies..."
-                </p>
-                <p class="text-[10px] text-stone-500 font-sans">
-                  Querying Gemini 2.0-Flash model...
-                </p>
-              </div>
+              <p id="loading_phrase" class="text-white text-xs font-serif-italic">"Analyzing visual patterns..."</p>
             </div>
 
-            <!-- Ultimate AI Result panel -->
             <div id="result_completed" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] overflow-hidden shadow-xl">
-              
-              <!-- Completion indicator bar -->
-              <div class="bg-[#121212] border-b border-[#2a2a2a] px-5 py-3.5 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                  <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span class="text-[10px] uppercase tracking-widest text-[#888] font-semibold">
-                    Acoustic Report Complete
-                  </span>
-                </div>
-                
-                <!-- Action Tools -->
-                <button 
-                  id="copy_response_btn" 
-                  class="p-1.5 rounded-lg text-stone-400 hover:text-white transition duration-150 cursor-pointer flex items-center justify-center"
-                  title="Copy to clipboard"
-                >
-                  <svg id="copy_icon_normal" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                  </svg>
-                  <svg id="copy_icon_success" class="hidden w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
+              <div class="bg-[#121212] border-b border-[#2a2a2a] px-5 py-3.5 flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-[10px] uppercase tracking-widest text-[#888] font-semibold">Analysis Complete</span>
               </div>
-
-              <!-- Main inner result context -->
-              <div class="p-5 flex flex-col gap-4">
-                <div class="flex gap-4 items-start">
-                  
-                  <!-- Miniature snapshots preview replaced with dynamic Sound Column icon -->
-                  <div class="relative w-14 h-14 rounded-xl overflow-hidden border border-[#2a2a2a] shrink-0 bg-[#0a0a0a] flex items-center justify-center">
-                    <div class="flex items-end gap-1.5 h-6">
-                      <span class="w-1 bg-emerald-500 h-2 rounded-full"></span>
-                      <span class="w-1 bg-emerald-500 h-5 rounded-full animate-pulse"></span>
-                      <span class="w-1 bg-emerald-400 h-3 rounded-full"></span>
-                      <span class="w-1 bg-emerald-500 h-1.5 rounded-full animate-pulse"></span>
-                    </div>
-                  </div>
-                  
-                  <div class="flex-1 min-w-0">
-                    <p id="ai_response_text" class="text-stone-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">
-                      Could not identify the item.
-                    </p>
-                  </div>
+              <div class="p-5 flex gap-4 items-start">
+                <div class="w-14 h-14 rounded-xl overflow-hidden border border-[#2a2a2a] shrink-0 bg-[#0a0a0a]">
+                  <img id="capture_thumbnail" src="" alt="Captured" class="w-full h-full object-cover" />
                 </div>
+                <p id="ai_response_text" class="text-stone-300 text-xs leading-relaxed whitespace-pre-wrap flex-1">Could not identify the item.</p>
               </div>
             </div>
-
           </div>
 
-          <!-- Big Touch-Friendly Identify Action Trigger -->
-          <button 
-            id="identify_button"
-            class="w-full h-16 bg-white text-black disabled:bg-[#1f1f1f] disabled:text-stone-600 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-200 transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] shadow-lg disabled:cursor-not-allowed cursor-pointer"
-          >
-            <svg id="button_search_icon" class="w-4 h-4 text-black shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-            </svg>
-            <span id="button_text">Record Sound</span>
+          <button id="identify_button" class="w-full h-16 bg-white text-black disabled:bg-[#1f1f1f] disabled:text-stone-600 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-200 transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] shadow-lg disabled:cursor-not-allowed cursor-pointer">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            Identify
           </button>
 
-          <!-- Reset / Clear state toggle -->
-          <button 
-            id="toggle_camera_btn"
-            class="flex items-center justify-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors text-[10px] tracking-wider uppercase font-mono py-1 cursor-pointer"
-          >
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-            </svg>
-            <span>Reset Audio Input</span>
+          <button id="toggle_camera_btn" class="flex items-center justify-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors text-[10px] tracking-wider uppercase font-mono py-1 cursor-pointer">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" /></svg>
+            Switch Camera
           </button>
 
+          <!-- API Key input -->
+          <div style="width:100%;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;">
+            <label style="font-size:10px;text-transform:uppercase;letter-spacing:0.15em;color:#666;">Gemini API Key</label>
+            <input id="key_input" type="password" placeholder="Paste your API key here" style="background:#0a0a0a;border:1px solid #333;border-radius:10px;padding:10px 12px;color:#ccc;font-size:12px;font-family:monospace;width:100%;outline:none;" />
+            <button id="save_key_btn" style="background:#222;color:#ccc;border:1px solid #333;border-radius:10px;padding:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;cursor:pointer;">Save Key</button>
+            <span id="key_status" style="font-size:10px;color:#10b981;display:none;">✓ Key saved!</span>
+          </div>
         </div>
       </main>
 
-      <!-- Bottom Home bar decoration -->
       <div class="w-28 h-1 bg-white/10 mx-auto mt-2 mb-4 rounded-full shrink-0 hidden sm:block"></div>
     </div>
 
-    <!-- Script Block containing purely self-contained interactive JavaScript logic -->
     <script>
-      // ==========================================
-      // CONFIGURATION: Set your Gemini API key here
-      // ==========================================
-      let API_KEY = "AIzaSyDGdS3Nb5vVTKGZI_y0i8sBH4mVNn_wdHc";
-
-      // Loading state phrases to cycle dynamically
       const LOADING_PHRASES = [
-        "Analyzing acoustic frequencies...",
-        "Evaluating frequency patterns...",
-        "Identifying sound characteristics...",
-        "Consulting Gemini 2.0-Flash...",
-        "De-noising background feed...",
-        "Formulating acoustic insights..."
+        "Analyzing visual patterns...",
+        "Running shape detection...",
+        "Consulting Gemini AI...",
+        "Decoding interesting facts...",
+        "Structuring cool insights...",
+        "Finalizing friendly review..."
       ];
 
-      // Grab elements
+      const cameraFeed = document.getElementById("camera_feed");
       const cameraLoading = document.getElementById("camera_loading");
       const cameraError = document.getElementById("camera_error");
       const errorMessageText = document.getElementById("error_message_text");
       const retryCameraBtn = document.getElementById("retry_camera_btn");
       const cameraOverlay = document.getElementById("camera_overlay");
-      const pulsingMicDot = document.getElementById("pulsing_mic_dot");
-      const facingCameraLabel = document.getElementById("facing_camera_label");
-      const audioDurationLabel = document.getElementById("audio_duration_label");
       const laserScan = document.getElementById("laser_scan");
-      
-      const fileLoadedCard = document.getElementById("file_loaded_card");
-      const fileLoadedName = document.getElementById("file_loaded_name");
-      const playUploadedBtn = document.getElementById("play_uploaded_btn");
-      const playBtnText = document.getElementById("play_btn_text");
-      const clearUploadedBtn = document.getElementById("clear_uploaded_btn");
-
+      const facingCameraLabel = document.getElementById("facing_camera_label");
+      const toggleCameraBtn = document.getElementById("toggle_camera_btn");
       const identifyButton = document.getElementById("identify_button");
-      const toggleCameraBtn = document.getElementById("toggle_camera_btn"); // Now used as Reset Audio
-      
       const resultIdeal = document.getElementById("result_ideal");
       const resultLoading = document.getElementById("result_loading");
       const loadingPhraseEl = document.getElementById("loading_phrase");
       const resultCompleted = document.getElementById("result_completed");
+      const captureThumbnail = document.getElementById("capture_thumbnail");
       const aiResponseText = document.getElementById("ai_response_text");
-      const copyResponseBtn = document.getElementById("copy_response_btn");
-      const copyIconNormal = document.getElementById("copy_icon_normal");
-      const copyIconSuccess = document.getElementById("copy_icon_success");
+      const keyInput = document.getElementById("key_input");
+      const saveKeyBtn = document.getElementById("save_key_btn");
+      const keyStatus = document.getElementById("key_status");
 
-      // Fallback Upload elements
-      const fileInput = document.getElementById("file_input");
-      const selectImageBtn = document.getElementById("select_image_btn");
-      const viewfinderContainer = document.getElementById("viewfinder_container");
+      // Load saved key
+      const savedKey = localStorage.getItem("gemini_api_key");
+      if (savedKey) keyInput.value = savedKey;
 
-      // Key modal controls
-      const keyConfigModal = document.getElementById("key_config_modal");
-      const openKeyModalBtn = document.getElementById("open_key_modal_btn");
-      const closeKeyModalBtn = document.getElementById("close_key_modal_btn");
-      const modalKeyInput = document.getElementById("modal_key_input");
-      const saveModalKeyBtn = document.getElementById("save_modal_key_btn");
-      const resetModalKeyBtn = document.getElementById("reset_modal_key_btn");
+      saveKeyBtn.addEventListener("click", () => {
+        const val = keyInput.value.trim();
+        if (val) {
+          localStorage.setItem("gemini_api_key", val);
+          keyStatus.style.display = "block";
+          setTimeout(() => keyStatus.style.display = "none", 2000);
+        }
+      });
 
-      // Canvas Visualizer
-      const canvas = document.getElementById("audio_waveform");
-      const canvasCtx = canvas.getContext("2d");
+      function getKey() {
+        return localStorage.getItem("gemini_api_key") || keyInput.value.trim();
+      }
 
-      // App state
-      let isRecording = false;
+      let activeStream = null;
+      let facingMode = "environment";
       let isIdentifying = false;
-      let mediaRecorder = null;
-      let audioChunks = [];
-      let recordingSeconds = 0;
-      let recordingInterval = null;
       let phraseInterval = null;
       let phraseIndex = 0;
 
-      let uploadedAudioBase64 = null;
-      let uploadedAudioMimeType = "audio/webm";
-      let playbackAudio = null;
-      let audioStream = null;
-      
-      // Web Audio context nodes for rendering
-      let audioCtx = null;
-      let analyser = null;
-      let dataArray = null;
-      let animationFrameId = null;
-
-      // Stored API key setup
-      const STORAGE_KEY_NAME = "gemini_what_is_this_key";
-      if (localStorage.getItem(STORAGE_KEY_NAME)) {
-        modalKeyInput.value = localStorage.getItem(STORAGE_KEY_NAME);
-      }
-
-      function getActiveApiKey() {
-        return localStorage.getItem(STORAGE_KEY_NAME) || API_KEY;
-      }
-
-      // Resize visualizer canvas optimally
-      function resizeCanvas() {
-        if (canvas) {
-          canvas.width = canvas.clientWidth || 320;
-          canvas.height = canvas.clientHeight || 240;
-        }
-      }
-      window.addEventListener("resize", resizeCanvas);
-      resizeCanvas();
-
-      // Ambient/Passive breathing canvas wave animation when not recording
-      function drawPassiveVisualizer(timestamp) {
-        if (isRecording) return; // active mic visual has control
-        if (!canvasCtx || !canvas) return;
-
-        animationFrameId = requestAnimationFrame(drawPassiveVisualizer);
-
-        const width = canvas.width;
-        const height = canvas.height;
-
-        canvasCtx.fillStyle = '#0c0c0c';
-        canvasCtx.fillRect(0, 0, width, height);
-
-        // Draw multiple ambient layered wave ribbons
-        const time = (timestamp || 0) * 0.0015;
-        
-        for (let waveIndex = 0; waveIndex < 2; waveIndex++) {
-          canvasCtx.lineWidth = waveIndex === 0 ? 2 : 1;
-          canvasCtx.strokeStyle = waveIndex === 0 ? 'rgba(16, 185, 129, 0.45)' : 'rgba(52, 211, 153, 0.2)';
-          canvasCtx.shadowBlur = waveIndex === 0 ? 8 : 0;
-          canvasCtx.shadowColor = '#10b981';
-
-          canvasCtx.beginPath();
-          let first = true;
-          const step = 6;
-
-          for (let x = 0; x < width + step; x += step) {
-            const angle1 = x * 0.008 + time + (waveIndex * Math.PI / 2);
-            const angle2 = x * 0.015 - time * 0.5;
-            
-            // Generate standard sine oscillations
-            const amp = 12 * Math.sin(time * 0.5) * Math.sin(x * 0.003) + 8;
-            const y = height / 2 + amp * Math.sin(angle1) * Math.cos(angle2);
-
-            if (first) {
-              canvasCtx.moveTo(x, y);
-              first = false;
-            } else {
-              canvasCtx.lineTo(x, y);
-            }
-          }
-          canvasCtx.stroke();
-        }
-        canvasCtx.shadowBlur = 0;
-      }
-
-      // Start recording from user's live system microphone
-      async function startRecording() {
-        if (isRecording) return;
-        
-        // Ensure standard states clean
-        stopPlayback();
-        resetResultsUI();
-
-        audioChunks = [];
-        cameraError.classList.add("hidden");
+      async function startCamera() {
         cameraLoading.classList.remove("hidden");
+        cameraError.classList.add("hidden");
+        cameraFeed.classList.add("hidden");
+        cameraOverlay.classList.add("hidden");
+        if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
 
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-          audioStream = stream;
-
-          // Wire up Analyzer nodes
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          const source = audioCtx.createMediaStreamSource(stream);
-          analyser = audioCtx.createAnalyser();
-          analyser.fftSize = 256;
-          const bufferLength = analyser.frequencyBinCount;
-          dataArray = new Uint8Array(bufferLength);
-          source.connect(analyser);
-
-          // Find optimal supported MediaRecorder format
-          let mimeType = "audio/webm";
-          let options = {};
-          if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-            options = { mimeType: 'audio/webm;codecs=opus' };
-            mimeType = 'audio/webm';
-          } else if (MediaRecorder.isTypeSupported('audio/ogg;codecs=opus')) {
-            options = { mimeType: 'audio/ogg;codecs=opus' };
-            mimeType = 'audio/ogg';
-          } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
-            options = { mimeType: 'audio/mp4' };
-            mimeType = 'audio/mp4';
-          }
-
-          mediaRecorder = new MediaRecorder(stream, options);
-
-          mediaRecorder.ondataavailable = (event) => {
-            if (event.data && event.data.size > 0) {
-              audioChunks.push(event.data);
-            }
-          };
-
-          mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || mimeType });
-            uploadedAudioMimeType = mediaRecorder.mimeType || mimeType;
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-              uploadedAudioBase64 = reader.result.split(',')[1];
-              
-              // Render file loaded UI badge
-              fileLoadedName.textContent = `Recorded voice clip (${recordingSeconds.toFixed(1)}s)`;
-              fileLoadedCard.classList.remove("hidden");
-
-              // Bind preview playback control
-              const playUrl = URL.createObjectURL(audioBlob);
-              playbackAudio = new Audio(playUrl);
-              playbackAudio.addEventListener("ended", () => {
-                playBtnText.textContent = "Play";
-              });
-
-              updateMainButtonState();
-            };
-            reader.readAsDataURL(audioBlob);
-
-            if (audioCtx && audioCtx.state !== 'closed') {
-              audioCtx.close();
-            }
-          };
-
-          mediaRecorder.start();
-          isRecording = true;
-          recordingSeconds = 0;
-
-          // Visual Feedback updates
-          facingCameraLabel.textContent = "RECORDING MIC LIVE";
-          pulsingMicDot.classList.remove("bg-emerald-500");
-          pulsingMicDot.classList.add("bg-red-500");
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+          activeStream = stream;
+          cameraFeed.srcObject = stream;
           cameraLoading.classList.add("hidden");
-
-          // Run live sample loop recorder countdown
-          recordingInterval = setInterval(() => {
-            recordingSeconds += 0.1;
-            audioDurationLabel.textContent = `${recordingSeconds.toFixed(1)}s / 15s max`;
-            
-            identifyButton.innerHTML = `
-              <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse mr-2.5"></span>
-              <span>Stop Recording (${recordingSeconds.toFixed(1)}s)</span>
-            `;
-
-            if (recordingSeconds >= 15) {
-              stopRecording();
-            }
-          }, 100);
-
-          // Cancel passive wave rendering, run real-time active visual frequency waves!
-          cancelAnimationFrame(animationFrameId);
-          drawActiveVisualizer();
-
+          cameraFeed.classList.remove("hidden");
+          cameraOverlay.classList.remove("hidden");
+          facingCameraLabel.textContent = facingMode === "environment" ? "REAR CAM" : "FRONT CAM";
+          cameraFeed.style.transform = facingMode === "user" ? "scaleX(-1)" : "none";
         } catch (err) {
-          console.error("Microphone device acquisition failed:", err);
+          if (facingMode === "environment") {
+            try {
+              const fallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+              activeStream = fallback;
+              cameraFeed.srcObject = fallback;
+              facingMode = "user";
+              cameraLoading.classList.add("hidden");
+              cameraFeed.classList.remove("hidden");
+              cameraOverlay.classList.remove("hidden");
+              facingCameraLabel.textContent = "FRONT CAM";
+              cameraFeed.style.transform = "scaleX(-1)";
+              return;
+            } catch (e) {}
+          }
           cameraLoading.classList.add("hidden");
           cameraError.classList.remove("hidden");
-          errorMessageText.textContent = "Active microphone link failed. Please grant browser microphone parameters.";
+          errorMessageText.textContent = err.name === "NotAllowedError" ? "Camera permission denied. Please allow camera access in your browser settings." : `Camera error: ${err.message}`;
         }
       }
 
-      // Stop capturing stream and freeze state
-      function stopRecording() {
-        if (!isRecording) return;
+      toggleCameraBtn.addEventListener("click", () => { facingMode = facingMode === "environment" ? "user" : "environment"; startCamera(); });
+      retryCameraBtn.addEventListener("click", startCamera);
 
-        if (mediaRecorder && mediaRecorder.state !== "inactive") {
-          mediaRecorder.stop();
-        }
-
-        if (audioStream) {
-          audioStream.getTracks().forEach(track => track.stop());
-          audioStream = null;
-        }
-
-        if (recordingInterval) {
-          clearInterval(recordingInterval);
-          recordingInterval = null;
-        }
-
-        isRecording = false;
-
-        // Reset HUD signals
-        facingCameraLabel.textContent = "MIC_MONITOR_READY";
-        pulsingMicDot.classList.remove("bg-red-500");
-        pulsingMicDot.classList.add("bg-emerald-500");
-
-        // Swap back to elegant passive morph wave
-        cancelAnimationFrame(animationFrameId);
-        drawPassiveVisualizer();
-      }
-
-      // Oscilloscope line renderer during active recordings
-      function drawActiveVisualizer() {
-        if (!isRecording || !canvasCtx || !analyser) return;
-
-        animationFrameId = requestAnimationFrame(drawActiveVisualizer);
-
-        const width = canvas.width;
-        const height = canvas.height;
-        const bufferLength = analyser.frequencyBinCount;
-        analyser.getByteTimeDomainData(dataArray);
-
-        canvasCtx.fillStyle = '#0c0c0c';
-        canvasCtx.fillRect(0, 0, width, height);
-
-        // Draw active waveform
-        canvasCtx.lineWidth = 3;
-        canvasCtx.strokeStyle = '#34d399'; // Emerald-400
-        canvasCtx.shadowBlur = 15;
-        canvasCtx.shadowColor = '#10b981';
-
-        canvasCtx.beginPath();
-        const sliceWidth = width / bufferLength;
-        let x = 0;
-
-        for (let i = 0; i < bufferLength; i++) {
-          const v = dataArray[i] / 128.0;
-          const y = (v * height) / 2;
-
-          if (i === 0) {
-            canvasCtx.moveTo(x, y);
-          } else {
-            canvasCtx.lineTo(x, y);
-          }
-          x += sliceWidth;
-        }
-
-        canvasCtx.lineTo(width, height / 2);
-        canvasCtx.stroke();
-        canvasCtx.shadowBlur = 0;
-      }
-
-      // Preview Playback control
-      function togglePlayback() {
-        if (!playbackAudio) return;
-
-        if (playbackAudio.paused) {
-          playbackAudio.play().then(() => {
-            playBtnText.textContent = "Stop";
-          }).catch(err => {
-            console.warn("Audio playback issue:", err);
-          });
-        } else {
-          stopPlayback();
-        }
-      }
-
-      function stopPlayback() {
-        if (playbackAudio) {
-          playbackAudio.pause();
-          playbackAudio.currentTime = 0;
-          playBtnText.textContent = "Play";
-        }
-      }
-
-      // Handle loaded drop files or manual input selectors
-      function handleAudioFile(file) {
-        if (!file) return;
-        
-        if (!file.type.startsWith("audio/")) {
-          alert("Please upload a valid audio format file (such as MP3, WAV, WebM).");
-          return;
-        }
-
-        stopRecording();
-        stopPlayback();
-        resetResultsUI();
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          uploadedAudioBase64 = e.target.result.split(',')[1];
-          uploadedAudioMimeType = file.type;
-
-          fileLoadedName.textContent = file.name;
-          fileLoadedCard.classList.remove("hidden");
-
-          // Setup locally playable preview
-          const playUrl = URL.createObjectURL(file);
-          playbackAudio = new Audio(playUrl);
-          playbackAudio.addEventListener("ended", () => {
-            playBtnText.textContent = "Play";
-          });
-
-          facingCameraLabel.textContent = "FILE_CLIP_LOADED";
-          audioDurationLabel.textContent = "Track Ready";
-          updateMainButtonState();
-        };
-        reader.readAsDataURL(file);
-      }
-
-      function resetResultsUI() {
-        resultIdeal.classList.remove("hidden");
-        resultCompleted.classList.add("hidden");
-        resultLoading.classList.add("hidden");
-        stopPhraseRotation();
-      }
-
-      // Resets the audio states cleanly
-      function resetAudioInput() {
-        stopRecording();
-        stopPlayback();
-        
-        uploadedAudioBase64 = null;
-        uploadedAudioMimeType = "audio/webm";
-        fileLoadedCard.classList.add("hidden");
-        fileInput.value = "";
-        
-        audioDurationLabel.textContent = "0.0s / 15s max";
-        facingCameraLabel.textContent = "MIC_MONITOR_IDLE";
-        
-        resetResultsUI();
-        updateMainButtonState();
-      }
-
-      // Phrase cycling when calling Gemini REST
       function startPhraseRotation() {
         phraseIndex = 0;
-        loadingPhraseEl.textContent = `"${LOADING_PHRASES[phraseIndex]}"`;
+        loadingPhraseEl.textContent = `"${LOADING_PHRASES[0]}"`;
         phraseInterval = setInterval(() => {
           phraseIndex = (phraseIndex + 1) % LOADING_PHRASES.length;
           loadingPhraseEl.textContent = `"${LOADING_PHRASES[phraseIndex]}"`;
-        }, 1500);
+        }, 1600);
       }
 
-      function stopPhraseRotation() {
-        if (phraseInterval) {
-          clearInterval(phraseInterval);
-          phraseInterval = null;
-        }
-      }
+      function stopPhraseRotation() { if (phraseInterval) { clearInterval(phraseInterval); phraseInterval = null; } }
 
-      // Core main button updater
-      function updateMainButtonState() {
-        if (isRecording) return; // interactive counters control it
-
-        if (isIdentifying) {
-          identifyButton.disabled = true;
-          identifyButton.innerHTML = `
-            <div class="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
-            <span>Analyzing Acoustic Clip...</span>
-          `;
-          return;
-        }
-
-        identifyButton.disabled = false;
-        if (uploadedAudioBase64) {
-          identifyButton.innerHTML = `
-            <svg class="w-4 h-4 text-black shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-            <span>Analyze Sound Clip</span>
-          `;
-        } else {
-          identifyButton.innerHTML = `
-            <svg class="w-4 h-4 text-black shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-            </svg>
-            <span>Record Sound</span>
-          `;
-        }
-      }
-
-      // Call API payload
-      async function handleIdentify() {
-        if (isIdentifying) return;
-
-        // Fallback file input trigger if no data loaded
-        if (!uploadedAudioBase64) {
-          fileInput.click();
-          return;
-        }
-
-        const currentKey = getActiveApiKey();
-        if (!currentKey) {
-          alert("Gemini key required! Set your custom API Key starts with AIzaSy by tapping key at header.");
-          return;
-        }
+      identifyButton.addEventListener("click", async () => {
+        if (!activeStream || isIdentifying) return;
+        const key = getKey();
+        if (!key) { alert("Please paste your Gemini API key in the box below and tap Save Key."); return; }
 
         try {
           isIdentifying = true;
-          updateMainButtonState();
-
+          identifyButton.disabled = true;
           laserScan.classList.remove("hidden");
           resultIdeal.classList.add("hidden");
           resultCompleted.classList.add("hidden");
           resultLoading.classList.remove("hidden");
           startPhraseRotation();
 
-          const payload = {
-            contents: [
-              {
-                parts: [
-                  {
-                    inlineData: {
-                      mimeType: uploadedAudioMimeType || "audio/webm",
-                      data: uploadedAudioBase64
-                    }
-                  },
-                  {
-                    text: "Identify the acoustic sound or spoken words clearly and explain what it is, any interesting acoustic patterns or details, and useful ambient facts. Keep it friendly and concise under 130 words."
-                  }
-                ]
-              }
-            ]
-          };
+          const canvas = document.createElement("canvas");
+          canvas.width = cameraFeed.videoWidth || 640;
+          canvas.height = cameraFeed.videoHeight || 480;
+          const ctx = canvas.getContext("2d");
+          if (facingMode === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+          ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+          captureThumbnail.src = dataUrl;
+          const b64 = dataUrl.split(",")[1];
 
-          const destinationUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${currentKey}`;
+          const body = JSON.stringify({ contents: [{ parts: [{ inlineData: { mimeType: "image/jpeg", data: b64 } }, { text: "What is this? Identify it clearly and explain what it is, any interesting facts about it, and anything useful the person should know. Keep it friendly and under 150 words." }] }] });
 
-          const response = await fetch(destinationUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-          });
-
+          // Try 1.5-flash first, then 2.0-flash
+          let response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, { method: "POST", headers: { "Content-Type": "application/json" }, body });
           if (!response.ok) {
-            const errorJson = await response.json().catch(() => ({}));
-            let errDetails = errorJson.error ? errorJson.error.message : "Standard request mismatch";
-            
-            if (response.status === 400 || response.status === 401 || response.status === 403) {
-              errDetails += ". (Check key correctness starting with AIzaSy by clicking 'KEY' in the header.)";
-            }
-            throw new Error(`Gemini service error: ${errDetails}`);
+            response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, { method: "POST", headers: { "Content-Type": "application/json" }, body });
           }
+          if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error?.message || `API error ${response.status}`); }
 
           const data = await response.json();
-          let rawText = "";
-          if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-            const partWithText = data.candidates[0].content.parts.find(p => p.text);
-            if (partWithText) {
-              rawText = partWithText.text;
-            }
-          }
-
-          if (!rawText) {
-            rawText = "Acoustic signatures were captured, but generated response pattern resolved empty.";
-          }
-
-          aiResponseText.textContent = rawText;
+          const text = data.candidates?.[0]?.content?.parts?.find(p => p.text)?.text || "Could not identify the item.";
+          aiResponseText.textContent = text;
           resultCompleted.classList.remove("hidden");
-
         } catch (err) {
-          console.error("AI audio classifier query failed:", err);
-          aiResponseText.innerHTML = `<span>Classification failure: ${err.message || "Endpoint error."}</span>\n            <div class="mt-3 pt-2.5 border-t border-white/5 flex justify-between items-center text-[10px] text-stone-500">\n              <span>API Diagnostics: Verify custom key value starting with AIzaSy.</span>\n              <button onclick="document.getElementById('open_key_modal_btn').click()" class="text-emerald-400 hover:underline cursor-pointer">Modify Key</button>\n            </div>`;
+          aiResponseText.textContent = `Error: ${err.message}. Check that your API key is correct.`;
           resultCompleted.classList.remove("hidden");
         } finally {
           isIdentifying = false;
-          updateMainButtonState();
+          identifyButton.disabled = false;
           laserScan.classList.add("hidden");
           resultLoading.classList.add("hidden");
           stopPhraseRotation();
         }
-      }
-
-      // Handle Central Big Action click
-      identifyButton.addEventListener("click", () => {
-        if (isRecording) {
-          stopRecording();
-        } else if (uploadedAudioBase64) {
-          handleIdentify();
-        } else {
-          startRecording();
-        }
       });
 
-      // Drag and Drop & File input Bindings
-      viewfinderContainer.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        viewfinderContainer.classList.add("border-stone-400");
-      });
-      viewfinderContainer.addEventListener("dragleave", () => {
-        viewfinderContainer.classList.remove("border-stone-400");
-      });
-      viewfinderContainer.addEventListener("drop", (e) => {
-        e.preventDefault();
-        viewfinderContainer.classList.remove("border-stone-400");
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-          handleAudioFile(e.dataTransfer.files[0]);
-        }
-      });
-
-      viewfinderContainer.addEventListener("click", (e) => {
-        // Only trigger input browse if not clicking interactive file loaded overlay cards
-        if (e.target.closest("#file_loaded_card") || e.target.closest("#key_config_modal")) return;
-        if (!isRecording && !uploadedAudioBase64) {
-          fileInput.click();
-        }
-      });
-
-      fileInput.addEventListener("change", (e) => {
-        if (e.target.files && e.target.files[0]) {
-          handleAudioFile(e.target.files[0]);
-        }
-      });
-
-      if (selectImageBtn) {
-        selectImageBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          fileInput.click();
-        });
-      }
-
-      // Clear sound preview action & Reset controls
-      clearUploadedBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        resetAudioInput();
-      });
-
-      playUploadedBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        togglePlayback();
-      });
-
-      toggleCameraBtn.addEventListener("click", () => {
-        resetAudioInput();
-      });
-
-      retryCameraBtn.addEventListener("click", () => {
-        startRecording();
-      });
-
-      // Clipboard Copier
-      let copyTimeout = null;
-      copyResponseBtn.addEventListener("click", () => {
-        const text = aiResponseText.innerText;
-        if (!text) return;
-
-        navigator.clipboard.writeText(text).then(() => {
-          copyIconNormal.classList.add("hidden");
-          copyIconSuccess.classList.remove("hidden");
-          
-          if (copyTimeout) clearTimeout(copyTimeout);
-          copyTimeout = setTimeout(() => {
-            copyIconNormal.classList.remove("hidden");
-            copyIconSuccess.classList.add("hidden");
-          }, 2000);
-        }).catch(err => console.log("Copy clip failed:", err));
-      });
-
-      // API Key setup modals
-      openKeyModalBtn.addEventListener("click", () => {
-        modalKeyInput.value = localStorage.getItem(STORAGE_KEY_NAME) || "";
-        keyConfigModal.classList.remove("hidden");
-      });
-
-      closeKeyModalBtn.addEventListener("click", () => {
-        keyConfigModal.classList.add("hidden");
-      });
-
-      saveModalKeyBtn.addEventListener("click", () => {
-        const val = modalKeyInput.value.trim();
-        if (val) {
-          localStorage.setItem(STORAGE_KEY_NAME, val);
-          keyConfigModal.classList.add("hidden");
-          resetAudioInput();
-        } else {
-          localStorage.removeItem(STORAGE_KEY_NAME);
-        }
-      });
-
-      resetModalKeyBtn.addEventListener("click", () => {
-        localStorage.removeItem(STORAGE_KEY_NAME);
-        modalKeyInput.value = "";
-        keyConfigModal.classList.add("hidden");
-        resetAudioInput();
-      });
-
-      // Start beautiful ambient loop animation when loaded
-      document.addEventListener("DOMContentLoaded", () => {
-        drawPassiveVisualizer();
-      });
-
-      window.addEventListener("beforeunload", () => {
-        stopRecording();
-        stopPlayback();
-      });
+      window.addEventListener("load", startCamera);
+      window.addEventListener("beforeunload", () => { if (activeStream) activeStream.getTracks().forEach(t => t.stop()); });
     </script>
   </body>
 </html>
