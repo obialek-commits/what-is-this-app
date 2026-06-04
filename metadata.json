@@ -1,6 +1,6 @@
 {
-  "name": "What Is This?",
-  "description": "Point your mobile camera at anything to identify it instantly using AI. Get cool facts, ideas, and info.",
-  "requestFramePermissions": ["camera"],
+  "name": "What's That Sound?",
+  "description": "Speak, whistle, or play a sound clip and let Gemini's multimodal audio understanding instantly analyze and explain its details.",
+  "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
