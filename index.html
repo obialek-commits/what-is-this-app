@@ -4,107 +4,325 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>What Is This? — Real-time AI Identifier</title>
+    <!-- Tailwind CSS v4 Browser Compiler JIT -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Premium Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,600;1,6..72,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <style>
-      body { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif; background-color: #0a0a0a; color: #e0e0e0; margin: 0; padding: 0; }
-      .font-serif-italic { font-family: 'Newsreader', Georgia, serif; font-style: italic; }
-      @keyframes scan { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-      .scanline-active { animation: scan 2.5s ease-in-out infinite; }
+      body {
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        background-color: #0a0a0a;
+        color: #e0e0e0;
+        margin: 0;
+        padding: 0;
+      }
+      .font-serif-italic {
+        font-family: 'Newsreader', Georgia, serif;
+        font-style: italic;
+      }
+      /* Custom scanline animation */
+      @keyframes scan {
+        0% { top: 0%; }
+        50% { top: 100%; }
+        100% { top: 0%; }
+      }
+      .scanline-active {
+        animation: scan 2.5s ease-in-out infinite;
+      }
     </style>
   </head>
-  <body class="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] flex items-center justify-center p-0 sm:p-8 relative">
+  <body class="min-h-screen bg-[#0a0a0a] text-[#e0e0e0] flex items-center justify-center p-0 sm:p-8 relative selection:bg-white/20 selection:text-white">
 
+    <!-- Secondary presentation aesthetic info context on large displays -->
+    <div class="hidden lg:block absolute top-10 right-10 text-right opacity-15 pointer-events-none select-none">
+      <div class="text-4xl font-serif-italic text-white tracking-widest">AI VISION</div>
+      <div class="text-[10px] tracking-[0.4em] text-stone-400 mt-1 uppercase font-mono">STANDALONE WEB EDITION</div>
+    </div>
+
+    <!-- Soft Ambient Global Backlight -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-[280px] bg-gradient-to-b from-white/[0.03] to-transparent blur-3xl pointer-events-none"></div>
+
+    <!-- Main Mobile Appliance Enclosure -->
     <div class="w-full max-w-md min-h-screen sm:min-h-[760px] sm:my-4 bg-[#121212] sm:rounded-[48px] sm:border-[6px] sm:border-[#1f1f1f] sm:shadow-2xl flex flex-col justify-between overflow-hidden relative">
-
+      
+      <!-- Top Header Row -->
       <header class="pt-10 px-8 pb-4 w-full">
         <div class="flex items-center justify-between mb-1">
-          <h1 class="text-3xl font-serif-italic text-white tracking-tight">What Is This?</h1>
-          <div class="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-[9px] text-[#888] font-mono tracking-wider">AI</div>
+          <h1 class="text-3xl font-serif-italic text-white tracking-tight select-none">
+            What Is This?
+          </h1>
+          <div class="flex items-center gap-1.5">
+            <button 
+              id="open_key_modal_btn" 
+              class="p-1 px-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-[#aaa] hover:text-white rounded-full text-[9px] font-mono tracking-widest uppercase transition-all duration-150 flex items-center gap-1 cursor-pointer"
+              title="Configure API Key"
+            >
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+              </svg>
+              <span>KEY</span>
+            </button>
+            <div class="px-2.5 py-1 bg-white/5 border border-white/10 rounded-full text-[9px] text-[#888] font-mono tracking-wider uppercase select-none">
+              LOCAL
+            </div>
+          </div>
         </div>
-        <p class="text-[10px] uppercase tracking-[0.25em] text-[#888] mt-1 font-medium">Point your camera at anything</p>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-[#888] mt-1 font-medium select-none">
+          Point your camera at anything
+        </p>
       </header>
 
+      <!-- Central Interactive Viewport -->
       <main class="flex-1 flex flex-col justify-between px-6 py-2 gap-4">
-        <div class="flex-grow min-h-[220px] relative aspect-video sm:aspect-[4/3] bg-[#1a1a1a] rounded-[32px] border border-[#2a2a2a] overflow-hidden flex flex-col justify-center items-center shadow-lg group">
-          <video id="camera_feed" autoplay playsinline muted class="hidden w-full h-full object-cover"></video>
 
-          <div id="camera_loading" class="flex flex-col items-center gap-3">
+
+        <!-- Viewfinder Bracket Block -->
+        <div id="viewfinder_container" class="flex-grow min-h-[220px] relative aspect-video sm:aspect-[4/3] bg-[#1a1a1a] rounded-[32px] border border-[#2a2a2a] overflow-hidden flex flex-col justify-center items-center shadow-lg group">
+          
+          <!-- Hidden Native File Input -->
+          <input type="file" id="file_input" accept="image/*" class="hidden" />
+
+          <!-- Translucent API Key Config Modal Overlay -->
+          <div id="key_config_modal" class="hidden absolute inset-0 z-30 bg-black/95 backdrop-blur-md p-6 flex flex-col justify-center gap-4 transition-all duration-300">
+            <div class="space-y-1">
+              <h3 class="text-sm font-semibold text-white tracking-wide flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                </svg>
+                Gemini API Key Setup
+              </h3>
+              <p class="text-[10px] text-stone-400 leading-relaxed font-sans">
+                The default key can be changed due to quota or regional restrictions. Save a custom key starts with <strong>AIzaSy...</strong> to run the model client-side.
+              </p>
+            </div>
+            
+            <div class="space-y-2">
+              <input 
+                type="password" 
+                id="modal_key_input" 
+                placeholder="Paste AIzaSy... key format" 
+                class="w-full bg-[#121212]/90 border border-[#333] text-xs text-stone-200 rounded-xl px-3 py-2.5 outline-none focus:border-white/40 font-mono transition-all"
+              />
+              <div class="flex gap-2">
+                <button 
+                  id="save_modal_key_btn"
+                  class="flex-1 bg-white text-black py-2.5 rounded-xl text-[10px] tracking-wider font-bold uppercase hover:bg-stone-200 active:scale-95 transition-all cursor-pointer"
+                >
+                  Save Custom Key
+                </button>
+                <button 
+                  id="reset_modal_key_btn"
+                  class="bg-white/5 border border-white/10 text-stone-300 px-4 py-2.5 rounded-xl text-[10px] tracking-wider font-semibold uppercase hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+                >
+                  Reset Default
+                </button>
+              </div>
+            </div>
+
+            <button 
+              id="close_key_modal_btn"
+              class="absolute top-4 right-4 text-stone-500 hover:text-stone-300 transition-colors cursor-pointer"
+              title="Close modal"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Live HTML5 Video Tag -->
+          <video 
+            id="camera_feed" 
+            autoplay 
+            playsinline 
+            muted 
+            class="hidden w-full h-full object-cover select-none pointer-events-none"
+          ></video>
+
+          <!-- Fallback Uploaded Preview Image Tag -->
+          <img 
+            id="uploaded_preview" 
+            src="" 
+            alt="Uploaded Preview" 
+            class="hidden w-full h-full object-contain select-none pointer-events-none bg-[#0a0a0a]"
+          />
+
+          <!-- Connecting / Status UI Spinner overlay -->
+          <div id="camera_loading" class="flex flex-col items-center gap-3 z-15">
             <div class="w-10 h-10 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-            <span class="text-[10px] uppercase tracking-widest text-[#888]">CONNECTING CAMERA...</span>
+            <span class="text-[10px] uppercase tracking-widest text-[#888]">CONNECTING DIGITAL SENSOR...</span>
           </div>
 
-          <div id="camera_error" class="hidden p-6 text-center flex flex-col items-center gap-4 max-w-xs">
-            <p id="error_message_text" class="text-stone-300 text-xs leading-relaxed">Camera access required. Please allow camera permission and try again.</p>
-            <button id="retry_camera_btn" class="px-5 py-2.5 bg-white text-black rounded-full text-[11px] uppercase tracking-widest font-bold cursor-pointer">Request Access</button>
+          <!-- Connection/Permission Error Frame (Hidden by default) -->
+          <div id="camera_error" class="hidden p-6 text-center flex flex-col items-center gap-4 z-15 max-w-xs">
+            <div class="w-14 h-14 rounded-full border border-white/15 flex items-center justify-center bg-white/[0.02]">
+              <svg class="w-5 h-5 text-stone-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <p id="error_message_text" class="text-stone-300 text-xs leading-relaxed font-sans">
+                Camera access required to examine physical objects.
+              </p>
+              <p class="text-[10px] text-stone-500 font-mono">
+                Or choose any local photo to examine:
+              </p>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <button 
+                id="retry_camera_btn"
+                class="px-5 py-2.5 bg-white text-black hover:bg-stone-200 active:scale-95 rounded-full text-[11px] uppercase tracking-widest font-bold transition duration-150 cursor-pointer w-full text-center"
+              >
+                Request Access
+              </button>
+              <button 
+                id="select_image_btn"
+                type="button"
+                class="px-5 py-2.5 bg-white/5 border border-white/10 text-stone-200 hover:bg-white/10 active:scale-95 rounded-full text-[11px] uppercase tracking-widest font-bold transition duration-150 cursor-pointer w-full text-center"
+              >
+                Upload Image Instead
+              </button>
+            </div>
           </div>
 
+          <!-- Dynamic Camera Overlay HUD HUD (Only visible when video is running) -->
           <div id="camera_overlay" class="hidden absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 bg-gradient-to-t from-black/60 to-transparent">
-            <div class="absolute w-8 h-8 border-t border-l border-white/30 top-6 left-6 rounded-tl-md"></div>
-            <div class="absolute w-8 h-8 border-t border-r border-white/30 top-6 right-6 rounded-tr-md"></div>
-            <div class="absolute w-8 h-8 border-b border-l border-white/30 bottom-6 left-6 rounded-bl-md"></div>
-            <div class="absolute w-8 h-8 border-b border-r border-white/30 bottom-6 right-6 rounded-br-md"></div>
+            <!-- Simulated focus brackets -->
+            <div class="absolute w-8 h-8 border-t border-l border-white/30 top-6 left-6 rounded-tl-md transition-all group-hover:scale-105 duration-300"></div>
+            <div class="absolute w-8 h-8 border-t border-r border-white/30 top-6 right-6 rounded-tr-md transition-all group-hover:scale-105 duration-300"></div>
+            <div class="absolute w-8 h-8 border-b border-l border-white/30 bottom-6 left-6 rounded-bl-md transition-all group-hover:scale-105 duration-300"></div>
+            <div class="absolute w-8 h-8 border-b border-r border-white/30 bottom-6 right-6 rounded-br-md transition-all group-hover:scale-105 duration-300"></div>
+
+            <!-- Glowing scan-line active only during active analysis -->
             <div id="laser_scan" class="hidden absolute left-0 right-0 h-[1.5px] bg-white/70 shadow-[0_0_15px_rgba(255,255,255,0.8)] z-20 scanline-active"></div>
-            <div class="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/50 bg-[#121212]/80 px-3 py-1.5 rounded-full mt-auto border border-white/5">
-              <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE</span>
-              <span id="facing_camera_label">REAR CAM</span>
+
+            <!-- Status Indicator Bar -->
+            <div class="flex justify-between items-center text-[9px] font-mono tracking-widest text-white/50 bg-[#121212]/80 backdrop-blur-md px-3 py-1.5 rounded-full mt-auto border border-white/5">
+              <span class="flex items-center gap-1.5 font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                LIVE FEED SIGNAL
+              </span>
+              <span id="facing_camera_label">ENV_REAR_CAM</span>
             </div>
           </div>
         </div>
 
+        <!-- Controls / Response Segment -->
         <div class="flex flex-col items-center gap-4">
+          
           <div class="w-full min-h-[145px] flex flex-col justify-start">
-
+            
+            <!-- Ideal initial suggestion prompt (Shows before first snapshot) -->
             <div id="result_ideal" class="w-full text-center py-5 text-[#888] flex flex-col items-center gap-2">
-              <p class="text-[10.5px] max-w-[260px] leading-relaxed">Place an item in the viewfinder and tap "Identify" to get instant AI facts.</p>
+              <svg class="w-4 h-4 text-[#333]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+              </svg>
+              <p class="text-[10.5px] max-w-[260px] leading-relaxed">
+                Place an item in the viewfinder frame and tap "Identify" to receive instant structured AI facts.
+              </p>
             </div>
 
-            <div id="result_loading" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-6 text-center flex flex-col items-center gap-4 shadow-xl">
+            <!-- Spinner screen during ongoing classification -->
+            <div id="result_loading" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] p-6 text-center flex flex-col items-center justify-center gap-4.5 shadow-xl">
               <div class="flex items-center gap-2">
                 <div class="w-4 h-4 border-2 border-white/15 border-t-white rounded-full animate-spin"></div>
-                <span class="text-[10px] text-[#888] uppercase tracking-widest font-mono">Analyzing...</span>
+                <span class="text-[10px] text-[#888] uppercase tracking-widest font-mono">Analyzing image...</span>
               </div>
-              <p id="loading_phrase" class="text-white text-xs font-serif-italic">"Analyzing visual patterns..."</p>
+              <div class="space-y-1">
+                <p id="loading_phrase" class="text-white text-xs font-serif-italic tracking-wide">
+                  "Analyzing visual patterns..."
+                </p>
+                <p class="text-[10px] text-stone-500 font-sans">
+                  Querying Gemini 1.5-Flash model...
+                </p>
+              </div>
             </div>
 
+            <!-- Ultimate AI Result panel -->
             <div id="result_completed" class="hidden w-full bg-[#1c1c1c] border border-[#2a2a2a] rounded-[24px] overflow-hidden shadow-xl">
+              
+              <!-- Completion indicator bar -->
               <div class="bg-[#121212] border-b border-[#2a2a2a] px-5 py-3.5 flex justify-between items-center">
                 <div class="flex items-center gap-2">
                   <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                  <span class="text-[10px] uppercase tracking-widest text-[#888] font-semibold">Analysis Complete</span>
+                  <span class="text-[10px] uppercase tracking-widest text-[#888] font-semibold">
+                    Analysis Complete
+                  </span>
                 </div>
+                
+                <!-- Action Tools -->
+                <button 
+                  id="copy_response_btn" 
+                  class="p-1.5 rounded-lg text-stone-400 hover:text-white transition duration-150 cursor-pointer flex items-center justify-center"
+                  title="Copy to clipboard"
+                >
+                  <svg id="copy_icon_normal" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                  </svg>
+                  <svg id="copy_icon_success" class="hidden w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
               </div>
+
+              <!-- Main inner result context -->
               <div class="p-5 flex flex-col gap-4">
                 <div class="flex gap-4 items-start">
+                  
+                  <!-- Miniature snapshots preview -->
                   <div class="relative w-14 h-14 rounded-xl overflow-hidden border border-[#2a2a2a] shrink-0 bg-[#0a0a0a]">
-                    <img id="capture_thumbnail" src="" alt="Captured" class="w-full h-full object-cover" />
+                    <img id="capture_thumbnail" src="" alt="Captured snapshot preview" class="w-full h-full object-cover" />
                   </div>
+                  
                   <div class="flex-1 min-w-0">
-                    <p id="ai_response_text" class="text-stone-300 text-xs leading-relaxed whitespace-pre-wrap">Could not identify the item.</p>
+                    <p id="ai_response_text" class="text-stone-300 text-xs leading-relaxed whitespace-pre-wrap font-sans">
+                      Could not identify the item.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
 
-          <button id="identify_button" class="w-full h-16 bg-white text-black disabled:bg-[#1f1f1f] disabled:text-stone-600 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-200 transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] shadow-lg disabled:cursor-not-allowed cursor-pointer">
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          <!-- Big Touch-Friendly Identify Action Trigger -->
+          <button 
+            id="identify_button"
+            class="w-full h-16 bg-white text-black disabled:bg-[#1f1f1f] disabled:text-stone-600 rounded-full font-bold text-xs uppercase tracking-widest hover:bg-stone-200 transition-all duration-200 flex items-center justify-center gap-2.5 active:scale-[0.98] shadow-lg disabled:cursor-not-allowed cursor-pointer"
+          >
+            <svg id="button_search_icon" class="w-4 h-4 text-black shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <span id="button_text">Identify</span>
           </button>
 
-          <button id="toggle_camera_btn" class="flex items-center justify-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors text-[10px] tracking-wider uppercase font-mono py-1 cursor-pointer">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" /></svg>
-            Switch Camera
+          <!-- Rear/Front camera switcher link toggle -->
+          <button 
+            id="toggle_camera_btn"
+            class="flex items-center justify-center gap-1.5 text-stone-500 hover:text-stone-300 transition-colors text-[10px] tracking-wider uppercase font-mono py-1 cursor-pointer"
+          >
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3-3 3 3m-3-3v12" />
+            </svg>
+            <span>Switch Camera feed</span>
           </button>
+
         </div>
       </main>
 
+      <!-- Bottom Home bar decoration -->
       <div class="w-28 h-1 bg-white/10 mx-auto mt-2 mb-4 rounded-full shrink-0 hidden sm:block"></div>
     </div>
 
+    <!-- Script Block containing purely self-contained interactive JavaScript logic -->
     <script>
-    const API_KEY = "AQ.Ab8RN6KNnpCtYW7Zid3s8JRoabvKZb_MvhO_WA503HySQs2onA";
+      // ==========================================
+      // CONFIGURATION: Set your Gemini API key here
+      // ==========================================
+      let API_KEY = "AQ.Ab8RN6LuFxITU5zjz8OjjaCNGZQD0nkqscEHWLrezVAxl1hz2Q";
 
+      // Loading state phrases to cycle dynamically
       const LOADING_PHRASES = [
         "Analyzing visual patterns...",
         "Running shape detection...",
@@ -114,6 +332,7 @@
         "Finalizing friendly review..."
       ];
 
+      // Grab elements
       const cameraFeed = document.getElementById("camera_feed");
       const cameraLoading = document.getElementById("camera_loading");
       const cameraError = document.getElementById("camera_error");
@@ -124,78 +343,252 @@
       const facingCameraLabel = document.getElementById("facing_camera_label");
       const toggleCameraBtn = document.getElementById("toggle_camera_btn");
       const identifyButton = document.getElementById("identify_button");
+      const buttonSearchIcon = document.getElementById("button_search_icon");
+      const buttonText = document.getElementById("button_text");
+      
       const resultIdeal = document.getElementById("result_ideal");
       const resultLoading = document.getElementById("result_loading");
       const loadingPhraseEl = document.getElementById("loading_phrase");
       const resultCompleted = document.getElementById("result_completed");
       const captureThumbnail = document.getElementById("capture_thumbnail");
       const aiResponseText = document.getElementById("ai_response_text");
+      const copyResponseBtn = document.getElementById("copy_response_btn");
+      const copyIconNormal = document.getElementById("copy_icon_normal");
+      const copyIconSuccess = document.getElementById("copy_icon_success");
 
+      // Fallback Upload elements
+      const fileInput = document.getElementById("file_input");
+      const uploadedPreview = document.getElementById("uploaded_preview");
+      const selectImageBtn = document.getElementById("select_image_btn");
+      const viewfinderContainer = document.getElementById("viewfinder_container");
+
+      // Key modal controls
+      const keyConfigModal = document.getElementById("key_config_modal");
+      const openKeyModalBtn = document.getElementById("open_key_modal_btn");
+      const closeKeyModalBtn = document.getElementById("close_key_modal_btn");
+      const modalKeyInput = document.getElementById("modal_key_input");
+      const saveModalKeyBtn = document.getElementById("save_modal_key_btn");
+      const resetModalKeyBtn = document.getElementById("reset_modal_key_btn");
+
+      // App state
       let activeStream = null;
       let facingMode = "environment";
       let isIdentifying = false;
       let phraseInterval = null;
       let phraseIndex = 0;
+      let uploadedImageBase64 = null;
+      let uploadedImageMimeType = "image/jpeg";
 
+      // Stored API key setup
+      const STORAGE_KEY_NAME = "gemini_what_is_this_key";
+      if (localStorage.getItem(STORAGE_KEY_NAME)) {
+        modalKeyInput.value = localStorage.getItem(STORAGE_KEY_NAME);
+      }
+
+      function getActiveApiKey() {
+        return localStorage.getItem(STORAGE_KEY_NAME) || API_KEY;
+      }
+
+      // Start Camera Lifecycle
       async function startCamera() {
+        // Reset uploaded file fallbacks
+        uploadedImageBase64 = null;
+        if (uploadedPreview) {
+          uploadedPreview.classList.add("hidden");
+          uploadedPreview.src = "";
+        }
+
         cameraLoading.classList.remove("hidden");
         cameraError.classList.add("hidden");
         cameraFeed.classList.add("hidden");
         cameraOverlay.classList.add("hidden");
+        
         stopCamera();
 
+        const constraints = {
+          video: {
+            facingMode: facingMode,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          },
+          audio: false
+        };
+
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
           activeStream = stream;
           cameraFeed.srcObject = stream;
+          
           cameraLoading.classList.add("hidden");
           cameraFeed.classList.remove("hidden");
           cameraOverlay.classList.remove("hidden");
-          facingCameraLabel.textContent = facingMode === "environment" ? "REAR CAM" : "FRONT CAM";
-          if (facingMode === "user") { cameraFeed.classList.add("scale-x-[-1]"); } else { cameraFeed.classList.remove("scale-x-[-1]"); }
+
+          // Update HUD indicators
+          facingCameraLabel.textContent = facingMode === "environment" ? "ENV_REAR_CAM" : "USER_FRONT_CAM";
+          
+          if (facingMode === "user") {
+            cameraFeed.classList.add("scale-x-[-1]");
+          } else {
+            cameraFeed.classList.remove("scale-x-[-1]");
+          }
         } catch (err) {
+          console.error("Camera access error:", err);
+          
+          // Environmental fallback for desktop webcam integration
           if (facingMode === "environment") {
             try {
-              const fallback = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-              activeStream = fallback;
-              cameraFeed.srcObject = fallback;
-              facingMode = "user";
+              const fallbackStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+              activeStream = fallbackStream;
+              cameraFeed.srcObject = fallbackStream;
+              facingMode = "user"; // adapt toggle
               cameraLoading.classList.add("hidden");
               cameraFeed.classList.remove("hidden");
               cameraOverlay.classList.remove("hidden");
-              facingCameraLabel.textContent = "FRONT CAM";
+              facingCameraLabel.textContent = "USER_FRONT_CAM";
               cameraFeed.classList.add("scale-x-[-1]");
               return;
-            } catch (e) {}
+            } catch (fallbackErr) {
+              console.error("Mirror webcam fallback also failed:", fallbackErr);
+            }
           }
+
           cameraLoading.classList.add("hidden");
           cameraError.classList.remove("hidden");
-          errorMessageText.textContent = err.name === "NotAllowedError" ? "Camera permission denied. Please allow camera access in your browser settings." : `Camera error: ${err.message}`;
+
+          if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+            errorMessageText.textContent = "Your browser denied camera permission. Please update your site parameters to grant access.";
+          } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+            errorMessageText.textContent = "No supported camera module detected on this controller.";
+          } else {
+            errorMessageText.textContent = `Camera hook up failed: ${err.message || 'Unknown sensor error'}`;
+          }
         }
       }
 
       function stopCamera() {
-        if (activeStream) { activeStream.getTracks().forEach(t => t.stop()); activeStream = null; }
+        if (activeStream) {
+          activeStream.getTracks().forEach(track => track.stop());
+          activeStream = null;
+        }
       }
 
-      toggleCameraBtn.addEventListener("click", () => { facingMode = facingMode === "environment" ? "user" : "environment"; startCamera(); });
-      retryCameraBtn.addEventListener("click", () => startCamera());
+      // Toggle environment vs user
+      toggleCameraBtn.addEventListener("click", () => {
+        facingMode = facingMode === "environment" ? "user" : "environment";
+        startCamera();
+      });
 
+      retryCameraBtn.addEventListener("click", () => {
+        startCamera();
+      });
+
+      // Handle Local Image Fallback File Selection
+      function handleImageFile(file) {
+        if (!file || !file.type.startsWith("image/")) {
+          alert("Please upload a valid image file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          uploadedImageBase64 = dataUrl.split(",")[1];
+          uploadedImageMimeType = file.type;
+
+          // Stop active camera stream
+          stopCamera();
+
+          // Update Viewport elements
+          uploadedPreview.src = dataUrl;
+          uploadedPreview.classList.remove("hidden");
+          cameraFeed.classList.add("hidden");
+          cameraLoading.classList.add("hidden");
+          cameraError.classList.add("hidden");
+
+          // Keep HUD decoration visually interesting
+          cameraOverlay.classList.remove("hidden");
+          facingCameraLabel.textContent = `IMG_FILE (${file.name})`;
+
+          // Reset results and allow user to identify
+          resultIdeal.classList.remove("hidden");
+          resultCompleted.classList.add("hidden");
+          resultLoading.classList.add("hidden");
+          identifyButton.disabled = false;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Hook local input selector triggers
+      fileInput.addEventListener("change", (e) => {
+        if (e.target.files && e.target.files[0]) {
+          handleImageFile(e.target.files[0]);
+        }
+      });
+
+      const selectImageBtnFallback = document.getElementById("select_image_btn");
+      if (selectImageBtnFallback) {
+        selectImageBtnFallback.addEventListener("click", (e) => {
+          e.stopPropagation();
+          fileInput.click();
+        });
+      }
+
+      // Drag & Drop event bindings on viewfinder container for streamlined desktop/tablet UX
+      viewfinderContainer.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        viewfinderContainer.classList.add("border-stone-400");
+      });
+      viewfinderContainer.addEventListener("dragleave", () => {
+        viewfinderContainer.classList.remove("border-stone-400");
+      });
+      viewfinderContainer.addEventListener("drop", (e) => {
+        e.preventDefault();
+        viewfinderContainer.classList.remove("border-stone-400");
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          handleImageFile(e.dataTransfer.files[0]);
+        }
+      });
+
+      // Viewfinder clicking alternative
+      viewfinderContainer.addEventListener("click", () => {
+        if (!activeStream) {
+          fileInput.click();
+        }
+      });
+
+      // Cycling loading state phrases helper
       function startPhraseRotation() {
         phraseIndex = 0;
-        loadingPhraseEl.textContent = `"${LOADING_PHRASES[0]}"`;
+        loadingPhraseEl.textContent = `"${LOADING_PHRASES[phraseIndex]}"`;
         phraseInterval = setInterval(() => {
           phraseIndex = (phraseIndex + 1) % LOADING_PHRASES.length;
           loadingPhraseEl.textContent = `"${LOADING_PHRASES[phraseIndex]}"`;
         }, 1600);
       }
 
-      function stopPhraseRotation() { if (phraseInterval) { clearInterval(phraseInterval); phraseInterval = null; } }
+      function stopPhraseRotation() {
+        if (phraseInterval) {
+          clearInterval(phraseInterval);
+          phraseInterval = null;
+        }
+      }
 
+      // Handle Identification Action
       async function handleIdentify() {
-        if (!activeStream || isIdentifying) return;
+        if (isIdentifying) return;
+
+        // If neither stream is active nor image is uploaded, trigger file chooser fallback cleanly!
+        if (!activeStream && !uploadedImageBase64) {
+          fileInput.click();
+          return;
+        }
+
+        const currentKey = getActiveApiKey();
+
         try {
           isIdentifying = true;
+          
+          // Disable button and prepare layout
           identifyButton.disabled = true;
           laserScan.classList.remove("hidden");
           resultIdeal.classList.add("hidden");
@@ -203,31 +596,82 @@
           resultLoading.classList.remove("hidden");
           startPhraseRotation();
 
-          const canvas = document.createElement("canvas");
-          canvas.width = cameraFeed.videoWidth || 640;
-          canvas.height = cameraFeed.videoHeight || 480;
-          const ctx = canvas.getContext("2d");
-          if (facingMode === "user") { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-          ctx.drawImage(cameraFeed, 0, 0, canvas.width, canvas.height);
+          let base64Clean = "";
+          let mimeType = "image/jpeg";
 
-          const base64DataUrl = canvas.toDataURL("image/jpeg", 0.85);
-          captureThumbnail.src = base64DataUrl;
-          const base64Clean = base64DataUrl.split(",")[1];
+          if (uploadedImageBase64) {
+            // Use the statically uploaded/dragged picture
+            base64Clean = uploadedImageBase64;
+            mimeType = uploadedImageMimeType;
+            captureThumbnail.src = `data:${mimeType};base64,${base64Clean}`;
+          } else {
+            // Freeze camera visually on screen to capture the perfect moment
+            cameraFeed.pause();
 
-          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-          const response = await fetch(url, {
+            // Draw current frame from video onto a canvas
+            const canvas = document.createElement("canvas");
+            const width = cameraFeed.videoWidth || 640;
+            const height = cameraFeed.videoHeight || 480;
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            if (!ctx) throw new Error("Could not acquire 2D drawing canvas profile.");
+
+            // Horizontal flip mirroring if front facing webcam is active
+            if (facingMode === "user") {
+              ctx.translate(width, 0);
+              ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(cameraFeed, 0, 0, width, height);
+            
+            // Export captured frame as Base64 encoded JPEG
+            const base64DataUrl = canvas.toDataURL("image/jpeg", 0.85);
+            captureThumbnail.src = base64DataUrl;
+
+            // Strip metadata prefix for inline base64 part
+            base64Clean = base64DataUrl.split(",")[1];
+          }
+
+          const payload = {
+            image: base64Clean,
+            mimeType: mimeType,
+            customApiKey: localStorage.getItem(STORAGE_KEY_NAME) || ""
+          };
+
+          const response = await fetch("/api/identify", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ inlineData: { mimeType: "image/jpeg", data: base64Clean } }, { text: "What is this? Identify it clearly and explain what it is, any interesting facts about it, and anything useful the person should know. Keep it friendly and under 150 words." }] }] })
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
           });
 
-          if (!response.ok) { const e = await response.json().catch(() => ({})); throw new Error(e.error ? e.error.message : "API error"); }
+          if (!response.ok) {
+            const errorJson = await response.json().catch(() => ({}));
+            let errDetails = errorJson.error ? errorJson.error.message : "Standard request mismatch";
+            
+            if (response.status === 400 || response.status === 401 || response.status === 403) {
+              errDetails += ". (Tip: Check your API Key starting with AIzaSy by clicking the 'KEY' button in the header.)";
+            }
+            throw new Error(`Gemini service error: ${errDetails}`);
+          }
+
           const data = await response.json();
-          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not identify the item.";
+          const rawText = data.text || "Could not identify the item.";
+
+          // Show Completed Result
           aiResponseText.textContent = rawText;
           resultCompleted.classList.remove("hidden");
+
         } catch (err) {
-          aiResponseText.textContent = `Error: ${err.message}`;
+          console.error("AI identification sequence error:", err);
+          aiResponseText.innerHTML = `<span>Identification error: ${err.message || "Failed during network sync."}</span>
+            <div class="mt-3 pt-2.5 border-t border-white/5 flex justify-between items-center text-[10px] text-stone-500">
+              <span>API Diagnostics: Key might be invalid or region restricted.</span>
+              <button onclick="document.getElementById('open_key_modal_btn').click()" class="text-emerald-400 hover:underline cursor-pointer">Modify Key</button>
+            </div>`;
           resultCompleted.classList.remove("hidden");
         } finally {
           isIdentifying = false;
@@ -235,12 +679,73 @@
           laserScan.classList.add("hidden");
           resultLoading.classList.add("hidden");
           stopPhraseRotation();
+          
+          // Resume live feed play if it is active
+          if (activeStream) {
+            cameraFeed.play().catch(e => console.warn("Live feed resume issue:", e));
+          }
         }
       }
 
+      // Copy response contents helper with visual success confirmation
+      let copyTimeout = null;
+      copyResponseBtn.addEventListener("click", () => {
+        const text = aiResponseText.innerText;
+        if (!text) return;
+
+        navigator.clipboard.writeText(text).then(() => {
+          copyIconNormal.classList.add("hidden");
+          copyIconSuccess.classList.remove("hidden");
+          
+          if (copyTimeout) clearTimeout(copyTimeout);
+          copyTimeout = setTimeout(() => {
+            copyIconNormal.classList.remove("hidden");
+            copyIconSuccess.classList.add("hidden");
+          }, 2000);
+        }).catch(err => {
+          console.error("Fail copy to clip: ", err);
+        });
+      });
+
+      // API Key Modal Listeners
+      openKeyModalBtn.addEventListener("click", () => {
+        modalKeyInput.value = localStorage.getItem(STORAGE_KEY_NAME) || "";
+        keyConfigModal.classList.remove("hidden");
+      });
+
+      closeKeyModalBtn.addEventListener("click", () => {
+        keyConfigModal.classList.add("hidden");
+      });
+
+      saveModalKeyBtn.addEventListener("click", () => {
+        const val = modalKeyInput.value.trim();
+        if (val) {
+          localStorage.setItem(STORAGE_KEY_NAME, val);
+          keyConfigModal.classList.add("hidden");
+          // Re-fetch immediately to verify key if user retries
+        } else {
+          localStorage.removeItem(STORAGE_KEY_NAME);
+        }
+      });
+
+      resetModalKeyBtn.addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY_NAME);
+        modalKeyInput.value = "";
+        keyConfigModal.classList.add("hidden");
+      });
+
+      // Connect triggers
       identifyButton.addEventListener("click", handleIdentify);
-      window.addEventListener("load", startCamera);
-      window.addEventListener("beforeunload", stopCamera);
+
+      // Start live stream immediately when page becomes interactive
+      document.addEventListener("DOMContentLoaded", () => {
+        startCamera();
+      });
+
+      // Handle tab visibility and page cleanups gracefully
+      window.addEventListener("beforeunload", () => {
+        stopCamera();
+      });
     </script>
   </body>
 </html>
